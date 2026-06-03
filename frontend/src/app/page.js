@@ -28,7 +28,13 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const res = await axios.get(`${API_Url}/api/leads`, {
-        params: { search, status: statusFilter, page, limit: 8 },
+        params: {
+          search,
+          status: statusFilter,
+          page,
+          limit: 8,
+          _t: Date.now(),
+        },
       });
       setLeads(res.data.data);
       setStats(res.data.stats);
