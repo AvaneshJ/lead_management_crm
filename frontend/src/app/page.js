@@ -39,6 +39,17 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
+  const handleDeleteLead = async (id) => {
+    if (!confirm("Delete this lead permanently?")) return;
+
+    try {
+      await axios.delete(`${API_Url}/api/leads/${id}`);
+
+      fetchLeads();
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+    }
+  };
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -124,18 +135,7 @@ export default function Dashboard() {
               setCurrentLead(l);
               setIsModalOpen(true);
             }}
-            onDelete={async (id) => {
-              if (confirm("Delete this lead permanently?")) {
-                try {
-                  await axios.delete(`${API_Url}/api/leads/${id}`);
-                  setLeads((prev) => prev.filter((l) => l._id !== id));
-                  fetchLeads();
-                } catch (err) {
-                  console.error("Error deleting lead", err);
-                  alert("Failed to delete lead. Please try again.");
-                }
-              }
-            }}
+            onDelete={handleDeleteLead}
             page={page}
             totalPages={totalPages}
             onPageChange={setPage}
