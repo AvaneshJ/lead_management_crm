@@ -16,31 +16,45 @@ export default function LeadFormModal({ lead, onClose, refreshData }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const phoneRegex = /^\+?[0-9\s\-]{7,15}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      setPhoneError(
-        "Please enter a valid phone number (7 to 15 digits, spaces or dashes allowed).",
-      );
-      return;
-    }
-    setPhoneError("");
+    console.log("🚀 Form submission started! Payload data:", formData);
+    console.log("📝 Checking mode context. Edit target lead profile:", lead);
+
     try {
-      if (lead) {
-        await axios.put(`${API_Url}/api/leads/${lead._id}`, formData);
+      let response;
+      if (lead && lead._id) {
+        console.log("🔄 Patching database entry for target ID:", lead._id);
+        response = await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/leads/${lead._id}`,
+          formData,
+        );
       } else {
-        await axios.post(`${API_Url}/api/leads`, formData);
+        console.log("➕ Posting brand-new lead to API route layout...");
+        response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/leads`,
+          formData,
+        );
       }
-      refreshData();
-      onClose();
-    } catch (err) {
-      alert(
-        err.response?.data?.error ||
-          "An error occurred compiling form submission.",
+
+      console.log(
+        "✅ Axios network request status success:",
+        response.status,
+        response.data,
       );
+
+      console.log("⚡ Executing refreshData callback function...");
+      refreshData();
+
+      console.log("🔒 Closing modal overlay canvas view...");
+      onClose();
+    } catch (error) {
+      console.error(
+        "❌ CRITICAL: Form compiler crashed inside the catch boundary!",
+      );
+      console.error("Error Response Object Data:", error.response?.data);
+      console.error("Error Message Status:", error.message);
     }
   };
 
-  // Shared class styles to guarantee text visibility inside inputs across themes
   const inputThemeClasses =
     "mt-1 w-full rounded-xl p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
 
