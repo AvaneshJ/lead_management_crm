@@ -16,35 +16,22 @@ export default function LeadFormModal({ lead, onClose, refreshData }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("🚀 Form submission started! Payload data:", formData);
-    console.log("📝 Checking mode context. Edit target lead profile:", lead);
-
     try {
       let response;
       if (lead && lead._id) {
-        console.log("🔄 Patching database entry for target ID:", lead._id);
         response = await axios.put(
           `${process.env.NEXT_PUBLIC_API_URL}/api/leads/${lead._id}`,
           formData,
         );
       } else {
-        console.log("➕ Posting brand-new lead to API route layout...");
         response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/api/leads`,
           formData,
         );
       }
 
-      console.log(
-        "✅ Axios network request status success:",
-        response.status,
-        response.data,
-      );
-
-      console.log("⚡ Executing refreshData callback function...");
       refreshData();
 
-      console.log("🔒 Closing modal overlay canvas view...");
       onClose();
     } catch (error) {
       console.error(

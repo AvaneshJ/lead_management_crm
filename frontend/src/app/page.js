@@ -22,12 +22,10 @@ export default function Dashboard() {
 
   const API_Url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  // 1. Safely handle hydration mounting boundary
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // 2. Core database polling engine
   const fetchLeads = async () => {
     setLoading(true);
     try {
@@ -37,7 +35,7 @@ export default function Dashboard() {
           status: statusFilter,
           page,
           limit: 8,
-          _t: Date.now(), // Cache-busting parameter to prevent stale Vercel edge fetches
+          _t: Date.now(),
         },
       });
       setLeads(res.data.data || []);
@@ -50,7 +48,6 @@ export default function Dashboard() {
     }
   };
 
-  // 3. Synchronized search/filter effect that waits for component mounting
   useEffect(() => {
     if (!mounted) return;
 
@@ -66,9 +63,9 @@ export default function Dashboard() {
     if (!confirm("Delete this lead permanently?")) return;
 
     try {
-      setLoading(true); // Triggers the "Loading active pipelines..." fallback UI instantly
+      setLoading(true);
       await axios.delete(`${API_Url}/api/leads/${id}`);
-      await fetchLeads(); // Awaits the fresh data pull before releasing loading state
+      await fetchLeads();
     } catch (error) {
       console.error("Error deleting lead:", error);
       setLoading(false);

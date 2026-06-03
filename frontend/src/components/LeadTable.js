@@ -84,7 +84,7 @@ export default function LeadTable({
                   </td>
                   <td className="py-4 px-6 text-right space-x-2">
                     <button
-                      type="button" // ◄── Explicit functional element binding
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         onEdit(lead);
@@ -94,7 +94,7 @@ export default function LeadTable({
                       Edit
                     </button>
                     <button
-                      type="button" // ◄── CRITICAL: Stops HTML loop from refreshing page automatically
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         onDelete(lead._id);
