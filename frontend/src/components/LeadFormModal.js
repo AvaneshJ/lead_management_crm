@@ -12,6 +12,7 @@ export default function LeadFormModal({ lead, onClose, refreshData }) {
     notes: lead?.notes || "",
   });
   const [phoneError, setPhoneError] = useState("");
+  const API_Url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,12 +26,9 @@ export default function LeadFormModal({ lead, onClose, refreshData }) {
     setPhoneError("");
     try {
       if (lead) {
-        await axios.put(
-          `http://localhost:5000/api/leads/${lead._id}`,
-          formData,
-        );
+        await axios.put(`${API_Url}/api/leads/${lead._id}`, formData);
       } else {
-        await axios.post(`http://localhost:5000/api/leads`, formData);
+        await axios.post(`${API_Url}/api/leads`, formData);
       }
       refreshData();
       onClose();

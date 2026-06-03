@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const API_Url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
   // Avoid hydration mismatch by waiting for mount
   useEffect(() => setMounted(true), []);
@@ -26,7 +27,7 @@ export default function Dashboard() {
   const fetchLeads = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/leads`, {
+      const res = await axios.get(`${API_Url}/api/leads`, {
         params: { search, status: statusFilter, page, limit: 8 },
       });
       setLeads(res.data.data);
@@ -125,7 +126,7 @@ export default function Dashboard() {
             }}
             onDelete={async (id) => {
               if (confirm("Delete this lead permanently?")) {
-                await axios.delete(`http://localhost:5000/api/leads/${id}`);
+                await axios.delete(`${API_Url}/api/leads/${id}`);
                 fetchLeads();
               }
             }}
