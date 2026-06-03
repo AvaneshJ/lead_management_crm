@@ -99,15 +99,23 @@ exports.updateLead = async (req, res, next) => {
 // Delete a lead
 exports.deleteLead = async (req, res, next) => {
   try {
+    // 1. Delete the lead from MongoDB instantly
     const lead = await Lead.findByIdAndDelete(req.params.id);
+
+    // 2. If the lead wasn't found, return a 404 error and stop execution
     if (!lead) {
       return res.status(404).json({
         success: false,
         message: "Lead not found",
       });
-      await lead.deleteOne();
-      res.status(200).json({ success: true, data: {} });
     }
+
+    // 3. SUCCESS: This MUST be outside the if block so it sends back to the frontend!
+    return res.status(200).json({
+      success: true,
+      message: "Lead successfully removed from tracking matrices",
+      data: {},
+    });
   } catch (error) {
     next(error);
   }
