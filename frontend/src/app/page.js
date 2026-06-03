@@ -19,11 +19,15 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
   const API_Url = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  // Avoid hydration mismatch by waiting for mount
-  useEffect(() => setMounted(true), []);
+  // 1. Safely handle hydration mounting boundary
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
+  // 2. Core database polling engine
   const fetchLeads = async () => {
     setLoading(true);
     try {
@@ -33,36 +37,43 @@ export default function Dashboard() {
           status: statusFilter,
           page,
           limit: 8,
-          _t: Date.now(),
+          _t: Date.now(), // Cache-busting parameter to prevent stale Vercel edge fetches
         },
       });
-      setLeads(res.data.data);
-      setStats(res.data.stats);
-      setTotalPages(res.data.pagination.totalPages);
+      setLeads(res.data.data || []);
+      setStats(res.data.stats || []);
+      setTotalPages(res.data.pagination?.totalPages || 1);
     } catch (err) {
-      console.error("Error fetching operational CRM data streams", err);
+      console.error("Error fetching operational CRM data streams:", err);
     } finally {
       setLoading(false);
     }
   };
+
+  // 3. Synchronized search/filter effect that waits for component mounting
+  useEffect(() => {
+    if (!mounted) return;
+
+    const delayDebounce = setTimeout(() => {
+      fetchLeads();
+    }, 400);
+
+    return () => clearTimeout(delayDebounce);
+  }, [search, statusFilter, page, mounted]);
+
+  // 4. Centralized Delete Handler
   const handleDeleteLead = async (id) => {
     if (!confirm("Delete this lead permanently?")) return;
 
     try {
+      setLoading(true); // Triggers the "Loading active pipelines..." fallback UI instantly
       await axios.delete(`${API_Url}/api/leads/${id}`);
-
-      fetchLeads();
+      await fetchLeads(); // Awaits the fresh data pull before releasing loading state
     } catch (error) {
       console.error("Error deleting lead:", error);
+      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      fetchLeads();
-    }, 400);
-    return () => clearTimeout(delayDebounce);
-  }, [search, statusFilter, page]);
 
   if (!mounted) return null;
 
@@ -99,6 +110,7 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Analytical Aggregators */}
         <StatsWidgets stats={stats} />
 
         {/* Filters and Controls */}
@@ -130,6 +142,7 @@ export default function Dashboard() {
           </select>
         </div>
 
+        {/* Dynamic Table State Routing */}
         {loading ? (
           <div className="text-center py-16 text-slate-400 font-medium tracking-wide animate-pulse">
             Loading active pipelines...
@@ -149,6 +162,7 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* Persistent Overlay Form Modal */}
       {isModalOpen && (
         <LeadFormModal
           lead={currentLead}
