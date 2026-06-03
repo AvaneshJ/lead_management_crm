@@ -84,13 +84,21 @@ export default function LeadTable({
                   </td>
                   <td className="py-4 px-6 text-right space-x-2">
                     <button
-                      onClick={() => onEdit(lead)}
+                      type="button" // ◄── Explicit functional element binding
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(lead);
+                      }}
                       className="text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 font-semibold text-xs px-3 py-1.5 rounded-lg border border-transparent hover:border-indigo-200 dark:hover:border-indigo-900/50 transition"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => onDelete(lead._id)}
+                      type="button" // ◄── CRITICAL: Stops HTML loop from refreshing page automatically
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(lead._id);
+                      }}
                       className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-semibold text-xs px-3 py-1.5 rounded-lg border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50 transition"
                     >
                       Delete
@@ -117,6 +125,7 @@ export default function LeadTable({
           </div>
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={() => onPageChange(Math.max(page - 1, 1))}
               disabled={page === 1}
               className="px-3 py-1.5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-semibold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition"
@@ -124,6 +133,7 @@ export default function LeadTable({
               Previous
             </button>
             <button
+              type="button"
               onClick={() => onPageChange(Math.min(page + 1, totalPages))}
               disabled={page === totalPages}
               className="px-3 py-1.5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-semibold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 transition"
