@@ -126,8 +126,14 @@ export default function Dashboard() {
             }}
             onDelete={async (id) => {
               if (confirm("Delete this lead permanently?")) {
-                await axios.delete(`${API_Url}/api/leads/${id}`);
-                fetchLeads();
+                try {
+                  await axios.delete(`${API_Url}/api/leads/${id}`);
+                  setLeads((prev) => prev.filter((l) => l._id !== id));
+                  fetchLeads();
+                } catch (err) {
+                  console.error("Error deleting lead", err);
+                  alert("Failed to delete lead. Please try again.");
+                }
               }
             }}
             page={page}
